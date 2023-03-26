@@ -92,7 +92,9 @@ Note that we will turn off ASLR (i.e., randomize_va_space).
 ```
 $ docker run --privileged -it swe3025 /bin/bash
 hw1@47d66468dcc4:/$ cd ~
-hw1@47d66468dcc4:~$ echo 0 > /proc/sys/kernel/randomize_va_space
+hw1@47d66468dcc4:~$ sudo sysctl -w kernel.randomize_va_space=0
+hw1@47d66468dcc4:~$ sudo cat /proc/sys/kernel/randomize_va_space
+0
 hw1@47d66468dcc4:~$ ls -l
 total 4
 drwxr-xr-x 4 root root 4096 Mar 30 00:58 peda
