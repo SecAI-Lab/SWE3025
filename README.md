@@ -82,17 +82,18 @@ However, all changes made will be gone because an `--rm` option
 will remove all jobs you've done upon exiting the container.
 ```
 $ docker run --rm -it swe3025 /bin/bash
-root@9622fd5a60f8:/# exit
+hw1@9622fd5a60f8:/$ exit
 ```
 
 More practically, let us run our docker image without the `--rm` option.
 Now you will see a new container id (e.g., d8a574ada8a3).
+We have added a new user `hw1` and a default password of `swe3025hw!`; and `sudo` has been enabled.
 Note that we will turn off ASLR (i.e., randomize_va_space).
 ```
 $ docker run --privileged -it swe3025 /bin/bash
-root@d8a574ada8a3:/# cd ~
-root@d8a574ada8a3:/# echo 0 > /proc/sys/kernel/randomize_va_space
-root@d8a574ada8a3:~# ls -l
+hw1@47d66468dcc4:/$ cd ~
+hw1@47d66468dcc4:~$ echo 0 > /proc/sys/kernel/randomize_va_space
+hw1@47d66468dcc4:~$ ls -l
 total 4
 drwxr-xr-x 4 root root 4096 Mar 30 00:58 peda
 ```
@@ -103,23 +104,25 @@ still running with `docker ps`.
 ```
 $ docker ps
 CONTAINER ID   IMAGE     COMMAND       CREATED          STATUS          PORTS     NAMES
-d8a574ada8a3   swe3025   "/bin/bash"   13 minutes ago   Up 13 minutes             relaxed_greider
+47d66468dcc4   swe3025   "/bin/bash"   13 minutes ago   Up 13 minutes             relaxed_greider
 ```
 
 If you want to go back to the container, use `docker exec` as follow (container id should be given). 
 Your changes will be valid as long as the container is running.
 ```
-$ docker exec -it d8a574ada8a3 bash
-root@d8a574ada8a3:/# cd ~
-root@d8a574ada8a3:~# vi vul.c
-root@d8a574ada8a3:~# gcc -fno-stack-protector -z execstack -no-pie -o vul vul.c
-root@d8a574ada8a3:~# ls -l
+$ docker exec -it 47d66468dcc4 bash
+hw1@47d66468dcc4:/$ cd ~
+hw1@47d66468dcc4:~$ git clone https://github.com/SecAI-Lab/SWE3025/
+hw1@47d66468dcc4:~$ cd SWE3025
+hw1@47d66468dcc4:~/SWE3025$ vi vul.c
+hw1@47d66468dcc4:~/SWE3025$ gcc -fno-stack-protector -z execstack -no-pie -o vul vul.c
+hw1@47d66468dcc4:~/SWE3025$ ls -l
 total 16
 drwxr-xr-x 4 root root 4096 Mar 30 00:58 peda
 -rwxr-xr-x 1 root root 7444 Apr  6 13:20 vul
 -rw-r--r-- 1 root root  340 Apr  6 13:19 vul.c
-root@d8a574ada8a3:~# file vul
-vul: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=2c5d66b5298692febd2f5a9a5ec2449862f40195, not stripped
+root@d8a574ada8a3:~$ file vul
+vul: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=4aa2fbd352ab5a6982e5238fca333f5b8021f56b, not stripped
 ```
 
 You can find general command line references for Docker here:
@@ -131,6 +134,7 @@ https://docs.docker.com/engine/reference/commandline/docker/
 
 Recall `vul.c` in class. The small program contains a vulnerability (i.e., buffer overflow).
 In this setting, we assume that both stack canary and NX do not exist just like back in 90's.
+It is noted that the PEDA plugin has been installed/enabled for gdb by default.
 
 ```
 // gcc -fno-stack-protector -z execstack -no-pie -o vul vul.c
